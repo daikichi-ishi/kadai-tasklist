@@ -90,7 +90,7 @@ class TasksController extends Controller
     {
         //idの値で取得
         $task = Task::findOrFail($id);
-        //メッセージを更新
+        //タスクを更新
         $task->content = $request->content;
         $task->save();
         
@@ -106,6 +106,13 @@ class TasksController extends Controller
      */
     public function destroy($id)
     {
-        //
+        //idの値で取得
+        $task = Task::findOrFail($id);
+        //削除
+        $task->delete();
+        
+        //トップページへリダイレクト
+        return redirect('/');
+        
     }
 }
