@@ -15,10 +15,22 @@ class TasksController extends Controller
      */
     public function index()
     {
-        //タスクの一覧
-        $tasks = Task::all();
         
-        return view('tasks.index',['tasks'=> $tasks]);
+        $data = [];
+        if (\Auth::check()) {
+            
+            $user = \Auth::user();
+            $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
+            
+            $data = [
+                'user' => $user,
+                'tasks' => $tasks,
+                ];
+        }
+        
+        
+        
+        return view('welcome', $data);
     }
 
     /**
@@ -49,10 +61,10 @@ class TasksController extends Controller
             ]);
         
         //タスクを登録処理
-        $task = new Task;
-        $task->status =$request->status;
-        $task->content = $request->content;
-        $task->save();
+        $request->user()->tasks()->create([
+            'status' => $request->status, 
+            'content' =>$request->content, 
+        ]);
         
         //トップページへリダイレクト
         return redirect('/');
@@ -104,9 +116,13 @@ class TasksController extends Controller
         //idの値で取得
         $task = Task::findOrFail($id);
         //タスクを更新
-        $task->status = $request->status;
-        $task->content = $request->content;
-        $task->save();
+        if (\Auth::id() === $task->user_id) {
+            $task->status = $request->status;
+            $task->content = $request->content;
+            $task->save(); 
+        }
+        
+        
         
         //トップページへリダイレクト
         return redirect('/');
@@ -123,7 +139,10 @@ class TasksController extends Controller
         //idの値で取得
         $task = Task::findOrFail($id);
         //削除
-        $task->delete();
+        if (\Auth::id() === $task->user_id) {
+            $task->delete();    
+        }
+        
         
         //トップページへリダイレクト
         return redirect('/');
