@@ -43,6 +43,7 @@ class TasksController extends Controller
         //タスク作成ビュー
         $task = new Task;
         
+        
         return view('tasks.create', ['task' => $task,]);
     }
 
@@ -103,8 +104,20 @@ class TasksController extends Controller
     {
         //idの値でタスクを取得
         $task = Task::findOrFail($id);
+        //削除
+        if (\Auth::id() === $task->user_id) {
+            return view('tasks.edit', ['task' => $task,]); 
+            
+        }
+        else{
+            //トップページへリダイレクト
+            return redirect('/');
+        }
         
-        return view('tasks.edit', ['task' => $task,]);
+            
+        return back(); 
+        
+        
     }
 
     /**
@@ -134,6 +147,8 @@ class TasksController extends Controller
             //トップページへリダイレクト
             return redirect('/');
         }
+        
+        return back();
     }
 
     /**
@@ -156,8 +171,8 @@ class TasksController extends Controller
             return redirect('/');
         }
         
-        
-        
+            
+        return back();  
         
     }
 }
